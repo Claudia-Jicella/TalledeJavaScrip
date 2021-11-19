@@ -18,6 +18,36 @@
         }
     }
 })();
+(function(){
+    self.Bar = function(x,y,width,height,board) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.board = board;
+        this.board.bars.push(this);
+        this.kind = "rectangle";       
+    }
+
+    self.Board.prototype = {
+        down: function(){
+
+
+        },
+        up: function(){
+
+
+        }
+
+
+    }
+
+
+
+
+})();
+
+
 
 (function(){
     self.BoardView = function (canvas,ball){
@@ -27,6 +57,18 @@
         this.board = board;
         this.ctx = canvas.getContext("2d");
     } 
+
+    function draw(ctx,elements){
+        switch (elements.kind){
+            case "square":
+                ctx.fillRect(elements.x,elements.y,elements.width,elements.height);
+                break;
+        }
+
+
+    }
+
+
 })();
 
 window.addEventListener("load",main)
