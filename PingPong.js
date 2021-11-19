@@ -19,6 +19,7 @@
         }
     }
 })();
+
 (function(){
     self.ball = function (x,y,radius,board){
         this.x=x;
@@ -28,6 +29,8 @@
         this.speed_y=0;
         this.speed_x=3;
         this.direction = 1;
+        this.bounce_angle = 0;
+        this.max_bounce_angel = Math.PI / 12;
 
         board.ball=this;
         this.kind = "circle";
@@ -37,12 +40,35 @@
     self.ball.prototype = {        //movimiento a la pelota
         move:function (){
             this.x += (this.speed_x * this.direction);
-            this.y += (this.speed_y * this.direction);
+            this.y += (this.speed_y);
+        },
+        get width (){
+            return this.radius * 2;
 
-        }
+        },
+        get height (){
+            return this.radius * 2;
+        },
+        
+        // reacciona a la colision con una barra que recibe como parametro
+         collision: function (bar){
+            var relative_intersect_y =( bar.y + (bar.height /2) ) - this.y;
+
+            var normalized_intersect_y = relative_intersect_y / (bar.height / 2);
+
+            this.bounce_angle = normalized_intersect_y * this.max_bounce_angel;
+
+            this.speed_y = this.speed * -Math.sin(this.bounce_angle);
+            this.speed_x = this.speed * Math.cos(this.bounce_angle);
+
+            if (this.x > (this.board.width / 2)) this.direction = -1;
+            else this.direction = 1;        
+            }
+
     }
 
 })();
+
 
 (function(){
     self.Bar = function(x,y,width,height,board) {
@@ -98,17 +124,53 @@
                 };
          
             },
+
+        check_collisions: function(){
+            for (var i = this.board.bars.length -1; i >=    0; i--){
+                var bar = this.board.bars[i];
+                if (hit(bar, this.board.ball)){
+                    console.log("pppp");
+
+                    //this.board.ball.collisions(bar);
+
+                }
+                
+            };
+        },
+
         play:function(){
             if(this.board.playing){
             this.clean();
             this.draw();
             this.board.ball.move();
+            this.check_collisions();
 
             }          
+        }     
+    }
+      //revisa si a coliciona con b
+    function hit (a,b){  
+        var hit = false;
 
-
+        if (b.x + b.width >= a.x && b.x < a.x + a.width) {
+            if (b.y + b.height >= a.y && b.y < a.y + a.height) {
+                hit = true;
+            }
         }
-     
+  
+        if (b.x <= a.x && b.x + b.width >= a.x + a.width) {
+            if (b.y <= a.y && b.y + b.height >= a.y + a.height) {
+                hit = true;
+            }
+        }
+  
+        if (a.x <= b.x && a.x + a.width >= b.x + b.width) {
+            if (a.y <= b.y && a.y + a.height >= b.y + b.height) {
+                hit = true;
+            }
+        }
+        return hit;
+
     }
 
     function draw(ctx,elements){
@@ -125,7 +187,9 @@
                     break;
             }
         
+        
     }
+    
 })();
 
 var board = new Board (800,400);
